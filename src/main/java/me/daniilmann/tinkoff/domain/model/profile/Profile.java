@@ -21,7 +21,7 @@ public class Profile extends AggregateRoot<ProfileId> {
     private String token;
     private Boolean real;
 
-    public Profile() {
+    private Profile() {
         super();
     }
 

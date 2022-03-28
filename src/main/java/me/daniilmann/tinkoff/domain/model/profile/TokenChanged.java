@@ -15,7 +15,7 @@ public class TokenChanged extends Event {
     private String token;
     private Boolean real;
 
-    public TokenChanged(){}
+    private TokenChanged(){}
 
     protected TokenChanged(ProfileId aggregateId, Timestamp version, String token, Boolean real) {
         super(Profile.class, aggregateId, version);

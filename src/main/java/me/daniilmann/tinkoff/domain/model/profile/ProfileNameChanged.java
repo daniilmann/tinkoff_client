@@ -16,7 +16,7 @@ public class ProfileNameChanged extends Event {
 
     private String name;
 
-    public ProfileNameChanged(){}
+    private ProfileNameChanged(){}
 
     public ProfileNameChanged(ProfileId aggregateId, Timestamp version, String name) {
         super(Profile.class, aggregateId, version);

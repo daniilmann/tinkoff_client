@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class ProfileId extends IdValue<UUID> {
 
-    public ProfileId(){}
+    private ProfileId(){}
 
     public ProfileId(UUID id) {
         super(id);
