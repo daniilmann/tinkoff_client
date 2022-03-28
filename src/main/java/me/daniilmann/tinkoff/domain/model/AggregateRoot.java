@@ -3,42 +3,49 @@ package me.daniilmann.tinkoff.domain.model;
 import com.google.common.collect.ImmutableList;
 import me.daniilmann.tinkoff.domain.model.exception.*;
 
+import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.ZonedDateTime;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public abstract class Entity<ID extends IdValue<?>> {
+@MappedSuperclass
+public abstract class AggregateRoot<ID extends IdValue<?>> {
 
+    @EmbeddedId
     private ID id;
-    private Integer baseVersion;
-    private ZonedDateTime versionTimestamp;
-    private List<Event> events;
-    private Boolean stale;
 
-    protected Entity(ID id) {
+    @Version
+    private Timestamp version;
+
+    @Transient
+    private List<Event> events;
+
+    @Transient
+    private Boolean stale = true;
+
+    protected AggregateRoot(){}
+
+    protected AggregateRoot(ID id) {
         this(id, new ArrayList<>());
     }
 
-    protected Entity(ID id, List<Event> events) {
+    protected AggregateRoot(ID id, List<Event> events) {
         setId(id);
-        setEvents(events);
+        propagate(events);
     }
 
-    private void setId(ID id) {
+    protected void setId(ID id) {
         if (id == null) {
             throw new NullIdException(this.getClass());
         }
         this.id = id;
     }
 
-    private void setEvents(List<Event> events) {
-        if (events == null) {
-            throw new NullValueException(this.getClass(), "events");
-        }
-        this.events = new ArrayList<>(events);
+    private void setVersion(Timestamp version) {
+        this.version = version;
     }
 
     protected void markStale() {
@@ -49,11 +56,17 @@ public abstract class Entity<ID extends IdValue<?>> {
         if (!stale) {
             throw new EntityIsNotStaleException(this.getClass());
         }
-        events.sort(Comparator.comparing(Event::getTimestamp));
-        if (versionTimestamp.compareTo(events.get(0).getTimestamp()) > 0) {
-            throw new EntityEventsSyncronizeException(this.getClass());
+        if (events == null) {
+            throw new NullValueException(this.getClass(), "events");
         }
-        events.forEach(this::applyNewEvent);
+        if (events.size() > 0) {
+            events.sort(Comparator.comparing(Event::version));
+            if (version.after(events.get(0).version())) {
+                throw new EntityEventsSyncronizeException(this.getClass());
+            }
+            events.forEach(this::applyNewEvent);
+        }
+        this.stale = false;
     }
 
     protected void applyNewEvent(Event event) {
@@ -67,36 +80,25 @@ public abstract class Entity<ID extends IdValue<?>> {
             Method method = this.getClass().getDeclaredMethod("apply", event.getClass());
             method.setAccessible(true);
             method.invoke(this, event);
+            setVersion(event.version());
         } catch (InvocationTargetException e) {
-            throw new ApplyEventException(e, event.getClass(), this.getClass(), getId());
+            throw new ApplyEventException(e, event.getClass(), this.getClass(), id());
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new UnsupportedEventException(e, event.getClass(), this.getClass(), getId());
+            throw new UnsupportedEventException(e, event.getClass(), this.getClass(), id());
         }
     }
 
-    public ID getId() {
-        return id;
-    }
-
-    public int getBaseVersion() {
-        return baseVersion;
+    public ID id() {
+        return id.replicate();
     }
 
     public List<Event> getNewEvents() {
         return ImmutableList.copyOf(events);
     }
 
-    protected int getNextVersion() {
-        return getCurrentVersion() + 1;
-    }
-
-    private int getCurrentVersion() {
-        return getBaseVersion() + events.size();
-    }
-
     private void checkVersion(Event event) {
-        if (event.getVersion() != getNextVersion()) {
-            throw new IllegalVersionException(event.getClass(), getCurrentVersion(), event.getVersion());
+        if (this.version.after(event.version())) {
+            throw new IllegalVersionException(event.getClass(), this.version, event.version());
         }
     }
 

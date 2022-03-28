@@ -1,4 +1,6 @@
 package me.daniilmann.tinkoff.domain.model;
 
-public interface ValueObject {
+import java.io.Serializable;
+
+public interface ValueObject extends Serializable {
 }

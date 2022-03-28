@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface ProfileRepository {
 
-    public void save(Profile profile);
+    public Profile save(Profile profile);
 
-    public Profile loadProfileById(ProfileId profileId);
+    public Profile getById(ProfileId profileId);
 
-    public List<Profile> loadAllProfilesByUserId(UserId userId);
+    public List<Profile> findAllByUserId(UserId userId);
 
 }

@@ -9,9 +9,11 @@ import me.daniilmann.tinkoff.domain.model.profile.UserId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class ProfileService  implements IProfileService {
 
     private ProfileRepository profileRepository;
@@ -24,15 +26,20 @@ public class ProfileService  implements IProfileService {
     }
 
     @Override
+    public void save(Profile profile) {
+        profileRepository.save(profile);
+    }
+
+    @Override
     public Profile loadProfileWithId(ProfileId profileId) {
-        Profile profile = profileRepository.loadProfileById(profileId);
-        List<Event> events = eventStore.load(profileId);
+        Profile profile = profileRepository.getById(profileId);
+        List<Event> events = eventStore.findAllByAggregateId(profileId);
         profile.propagate(events);
         return profile;
     }
 
     @Override
     public List<Profile> loadProfileWithUserId(UserId userId) {
-        return null;
+        return profileRepository.findAllByUserId(userId);
     }
 }

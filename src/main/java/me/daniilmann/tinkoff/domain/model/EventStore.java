@@ -4,9 +4,10 @@ import java.util.List;
 
 public interface EventStore {
 
-  public void store(Class<? extends Entity> entityClass, IdValue<?> aggregateId, List<Event> newEvents, int baseVersion)
-      throws OptimisticLockingException;
+    public void store(Event event);
 
-  public List<Event> load(IdValue<?> aggregateId);
+    public void storeAll(List<Event> newEvents);
+
+    public List<Event> findAllByAggregateId(IdValue<?> aggregateId);
 
 }

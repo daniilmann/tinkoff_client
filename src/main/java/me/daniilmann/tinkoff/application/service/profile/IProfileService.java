@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface IProfileService {
 
+    public void save(Profile profile);
+
     public Profile loadProfileWithId(ProfileId profileId);
 
     public List<Profile> loadProfileWithUserId(UserId userId);
-
-
 
 }
