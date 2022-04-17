@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tinkoff_client
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+
+    jpa:
+      database: POSTGRESQL
+      show-sql: true
+      generate-ddl: true
+      hibernate:
+        ddl-auto: create
