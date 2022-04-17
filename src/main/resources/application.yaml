@@ -1,13 +1,31 @@
 spring:
+  application:
+    name: tinkoff_client
+
   datasource:
     url: jdbc:postgresql://localhost:5432/tinkoff_client
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
 
-    jpa:
-      database: POSTGRESQL
-      show-sql: true
-      generate-ddl: true
-      hibernate:
-        ddl-auto: create
+  liquibase:
+    change-log: classpath:/liquibase/changelog-master.xml
+
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      default_schema: public
+      hbm2ddl:
+        auto: validate
+      dialect: org.hibernate.dialect.PostgreSQL95Dialect
+      jdbc:
+        batch_size: 20
+
+      schema_update:
+        unique_constraint_strategy: RECREATE_QUIETLY
+
+    #    hibernate:
+    #      ddl-auto: validate
+
+    show-sql: true

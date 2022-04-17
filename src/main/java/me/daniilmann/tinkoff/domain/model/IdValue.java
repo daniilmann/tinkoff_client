@@ -49,5 +49,10 @@ public abstract class IdValue<T> implements ValueObject {
         return Objects.hash(id);
     }
 
+    @Override
+    public String toString() {
+        return id.toString();
+    }
+
     public abstract <T extends IdValue<?>> T replicate();
 }

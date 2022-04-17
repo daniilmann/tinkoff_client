@@ -8,6 +8,8 @@ public interface ProfileRepository {
 
     public Profile getById(ProfileId profileId);
 
+    public List<Profile> findAll();
+
     public List<Profile> findAllByUserId(UserId userId);
 
 }

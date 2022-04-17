@@ -7,8 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Entity
 @Table(name = "events")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -32,6 +30,7 @@ public class Event {
     protected Event(){}
 
     protected Event(Class<? extends AggregateRoot> aggregateClass, IdValue<?> aggregateId, Timestamp version) {
+        id = UUID.randomUUID();
         if (aggregateClass == null) {
             throw new NullValueException(this.getClass(), "aggregateClass");
         }

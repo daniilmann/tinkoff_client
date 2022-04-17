@@ -1,8 +1,7 @@
-package me.daniilmann.tinkoff;
+package me.daniilmann.tinkoff.runner;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class TinkoffApplication {

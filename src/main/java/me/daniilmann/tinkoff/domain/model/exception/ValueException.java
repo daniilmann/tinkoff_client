@@ -2,23 +2,23 @@ package me.daniilmann.tinkoff.domain.model.exception;
 
 public abstract class ValueException extends RuntimeException {
 
-    private Class<?> clazz;
+    private Class<?> sourceClass;
     private String field;
 
-    public ValueException(String message, Class<?> clazz, String field) {
-        super(String.format("%s.%s; %s", clazz.getName(), field, message));
-        this.clazz = clazz;
+    public ValueException(String message, Class<?> sourceClass, String field) {
+        super(String.format("%s.%s; %s", sourceClass.getName(), field, message));
+        this.sourceClass = sourceClass;
         this.field = field;
     }
 
-    public ValueException(String message, Throwable cause, Class<?> clazz, String field) {
-        super(String.format("%s.%s; %s", clazz.getName(), field, message), cause);
-        this.clazz = clazz;
+    public ValueException(String message, Throwable cause, Class<?> sourceClass, String field) {
+        super(String.format("%s.%s; %s", sourceClass.getName(), field, message), cause);
+        this.sourceClass = sourceClass;
         this.field = field;
     }
 
-    public Class<?> getClazz() {
-        return clazz;
+    public Class<?> getSourceClass() {
+        return sourceClass;
     }
 
     public String getField() {

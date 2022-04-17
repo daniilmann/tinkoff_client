@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: tinkoff_client
+
+  security:
+    basic:
+      enabled: true
+      authorize-mode: NONE
+
+  datasource:
+    url: jdbc:h2:mem:tinkoff_client
+    username: user
+    password: password
+    driverClassName: org.h2.Driver
+
+  liquibase:
+    enabled: false
+
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      default_schema: public
+      hbm2ddl:
+        auto: create
+      dialect: org.hibernate.dialect.H2Dialect
+      jdbc:
+        batch_size: 20
+
+      schema_update:
+        unique_constraint_strategy: RECREATE_QUIETLYsp
+
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        trace: false
+        web-allow-others: false

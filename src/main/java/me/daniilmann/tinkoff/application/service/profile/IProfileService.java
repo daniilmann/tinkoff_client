@@ -12,6 +12,8 @@ public interface IProfileService {
 
     public Profile loadProfileWithId(ProfileId profileId);
 
+    public List<Profile> findAll();
+
     public List<Profile> loadProfileWithUserId(UserId userId);
 
 }

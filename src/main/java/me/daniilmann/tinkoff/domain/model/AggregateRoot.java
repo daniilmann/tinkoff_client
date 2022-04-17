@@ -2,14 +2,14 @@ package me.daniilmann.tinkoff.domain.model;
 
 import com.google.common.collect.ImmutableList;
 import me.daniilmann.tinkoff.domain.model.exception.*;
+import me.daniilmann.tinkoff.domain.model.profile.Profile;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 @MappedSuperclass
 public abstract class AggregateRoot<ID extends IdValue<?>> {
@@ -21,7 +21,7 @@ public abstract class AggregateRoot<ID extends IdValue<?>> {
     private Timestamp version;
 
     @Transient
-    private List<Event> events;
+    private List<Event> events = new ArrayList<>();
 
     @Transient
     private Boolean stale = true;
@@ -35,16 +35,20 @@ public abstract class AggregateRoot<ID extends IdValue<?>> {
     protected AggregateRoot(ID id, List<Event> events) {
         setId(id);
         propagate(events);
+        this.version = Timestamp.from(Instant.now());
     }
 
     protected void setId(ID id) {
-        if (id == null) {
-            throw new NullIdException(this.getClass());
-        }
+        checkId(id);
         this.id = id;
     }
 
+    protected abstract void checkId(ID id);
+
     private void setVersion(Timestamp version) {
+        if (version.after(version)) {
+            throw new EntityEventsSyncronizeException(this.getClass());
+        }
         this.version = version;
     }
 
@@ -93,13 +97,26 @@ public abstract class AggregateRoot<ID extends IdValue<?>> {
     }
 
     public List<Event> getNewEvents() {
-        return ImmutableList.copyOf(events);
+        return Collections.unmodifiableList(events);
     }
 
     private void checkVersion(Event event) {
         if (this.version.after(event.version())) {
             throw new IllegalVersionException(event.getClass(), this.version, event.version());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!o.getClass().equals(this.getClass())) return false;
+        AggregateRoot aggregate = (AggregateRoot) o;
+        return aggregate.id().equals(id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
